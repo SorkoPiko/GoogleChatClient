@@ -56,7 +56,13 @@ function createWindow() {
 }
 
 function createTray() {
-  tray = new Tray(path.join(__dirname, 'icons/tray.png'));
+  // Use template image for better macOS menu bar appearance
+  const trayIconPath = process.platform === 'darwin' 
+    ? path.join(__dirname, 'icons/trayTemplate.png') // Use a template image for macOS
+    : path.join(__dirname, 'icons/tray.png');
+    
+  tray = new Tray(trayIconPath);
+  
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Open Google Chat', click: () => { mainWindow.show(); } },
     { type: 'separator' },
@@ -88,18 +94,63 @@ function showNotification(title, body) {
 app.whenReady().then(() => {
   createWindow();
   
-  // Prevent app from exiting on macOS when CMD+Q is pressed
+  // Handle macOS specific behavior
+  if (process.platform === 'darwin') {
+    // Create app menu to ensure copy/paste and other standard features work
+    const appMenu = Menu.buildFromTemplate([
+      {
+        label: app.name,
+        submenu: [
+          { role: 'about' },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { 
+            label: 'Hide',
+            accelerator: 'Command+H',
+            click: () => { mainWindow.hide(); }
+          },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { 
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            click: () => { 
+              isQuitting = true;
+              app.quit();
+            }
+          }
+        ]
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' }
+        ]
+      }
+    ]);
+    
+    Menu.setApplicationMenu(appMenu);
+  }
+  
+  // Properly handle the before-quit event
   app.on('before-quit', (event) => {
     if (!isQuitting) {
       event.preventDefault();
       mainWindow.hide();
-      return false;
     }
-    return true;
   });
   
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else mainWindow.show();
   });
 });
 
