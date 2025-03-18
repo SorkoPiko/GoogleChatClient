@@ -6,9 +6,14 @@ app.setName('Google Chat');
 // Keep a global reference to prevent garbage collection
 let mainWindow;
 let tray;
-let isQuitting = false;
+let forceQuit = false;
 
 function createWindow() {
+  // Hide from dock initially if on macOS
+  if (process.platform === 'darwin') {
+    app.dock.hide();
+  }
+
   // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -24,14 +29,18 @@ function createWindow() {
   // Load Google Chat
   mainWindow.loadURL('https://chat.google.com');
 
-  // Handle window close events
+  // Handle window close events - just hide the window, don't close the app
   mainWindow.on('close', (event) => {
-    if (!isQuitting) {
+    if (!forceQuit) {
       event.preventDefault();
       mainWindow.hide();
+      
+      // Hide from dock when window is closed
+      if (process.platform === 'darwin') {
+        app.dock.hide();
+      }
       return false;
     }
-    return true;
   });
 
   // Create notification when messages arrive
@@ -58,22 +67,46 @@ function createWindow() {
 function createTray() {
   // Use template image for better macOS menu bar appearance
   const trayIconPath = process.platform === 'darwin' 
-    ? path.join(__dirname, 'icons/trayTemplate.png') // Use a template image for macOS
+    ? path.join(__dirname, 'icons/trayTemplate.png') 
     : path.join(__dirname, 'icons/tray.png');
     
   tray = new Tray(trayIconPath);
   
   const contextMenu = Menu.buildFromTemplate([
-    { label: 'Open Google Chat', click: () => { mainWindow.show(); } },
+    { 
+      label: 'Show Google Chat', 
+      click: () => { 
+        if (process.platform === 'darwin') {
+          app.dock.show();
+        }
+        mainWindow.show(); 
+      } 
+    },
     { type: 'separator' },
-    { label: 'Quit', click: () => { isQuitting = true; app.quit(); } }
+    { 
+      label: 'Quit', 
+      click: () => { 
+        forceQuit = true;
+        app.quit(); 
+      } 
+    }
   ]);
   
   tray.setToolTip('Google Chat');
   tray.setContextMenu(contextMenu);
   
   tray.on('click', () => {
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+      if (process.platform === 'darwin') {
+        app.dock.hide();
+      }
+    } else {
+      if (process.platform === 'darwin') {
+        app.dock.show();
+      }
+      mainWindow.show();
+    }
   });
 }
 
@@ -94,31 +127,23 @@ function showNotification(title, body) {
 app.whenReady().then(() => {
   createWindow();
   
-  // Handle macOS specific behavior
+  // Simpler macOS menu
   if (process.platform === 'darwin') {
-    // Create app menu to ensure copy/paste and other standard features work
     const appMenu = Menu.buildFromTemplate([
       {
         label: app.name,
         submenu: [
           { role: 'about' },
           { type: 'separator' },
-          { role: 'services' },
-          { type: 'separator' },
-          { 
-            label: 'Hide',
-            accelerator: 'Command+H',
-            click: () => { mainWindow.hide(); }
-          },
-          { role: 'hideOthers' },
-          { role: 'unhide' },
-          { type: 'separator' },
-          { 
+          {
             label: 'Quit',
             accelerator: 'Command+Q',
-            click: () => { 
-              isQuitting = true;
-              app.quit();
+            click: () => {
+              // Just hide instead of quitting
+              mainWindow.hide();
+              if (process.platform === 'darwin') {
+                app.dock.hide();
+              }
             }
           }
         ]
@@ -140,26 +165,38 @@ app.whenReady().then(() => {
     Menu.setApplicationMenu(appMenu);
   }
   
-  // Properly handle the before-quit event
-  app.on('before-quit', (event) => {
-    if (!isQuitting) {
-      event.preventDefault();
-      mainWindow.hide();
+  // Handle activation (clicking on dock icon)
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    } else {
+      mainWindow.show();
+      if (process.platform === 'darwin') {
+        app.dock.show();
+      }
     }
   });
-  
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-    else mainWindow.show();
-  });
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+// Prevent app from closing on all windows closed
+app.on('window-all-closed', (event) => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  } else {
+    mainWindow.hide();
+    app.dock.hide();
+  }
 });
 
-app.on('before-quit', () => {
-  isQuitting = true;
+// Override the before-quit event to just hide unless force quit is triggered
+app.on('before-quit', (event) => {
+  if (!forceQuit) {
+    event.preventDefault();
+    mainWindow.hide();
+    if (process.platform === 'darwin') {
+      app.dock.hide();
+    }
+  }
 });
 
 // Listen for new message events from the preload script
