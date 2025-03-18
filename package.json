@@ -46,7 +46,8 @@
 				"deb"
 			],
 			"icon": "icons/icon.png",
-			"category": "Network;Chat"
+			"category": "Network;Chat",
+			"maintainer": "SorkoPiko <orion.railean@gmail.com>"
 		}
 	}
 }
