@@ -1,0 +1,42 @@
+{
+	"name": "google-chat-client",
+	"version": "1.0.0",
+	"description": "Desktop client for Google Chat",
+	"main": "main.js",
+	"scripts": {
+		"start": "electron .",
+		"build:win": "electron-builder --win",
+		"build:mac": "electron-builder --mac",
+		"build:linux": "electron-builder --linux"
+	},
+	"dependencies": {
+		"electron-store": "^8.1.0",
+		"electron-updater": "^6.3.9",
+		"google-chat-client": "file:"
+	},
+	"devDependencies": {
+		"electron": "^26.3.0",
+		"electron-builder": "^25.1.8"
+	},
+	"build": {
+		"appId": "com.sorkopiko.googlechatclient",
+		"productName": "Google Chat",
+		"mac": {
+			"category": "public.app-category.social-networking",
+			"target": "dmg",
+			"icon": "icons/icon.png"
+		},
+		"win": {
+			"target": "nsis",
+			"icon": "icons/icon.png"
+		},
+		"linux": {
+			"target": [
+				"AppImage",
+				"deb"
+			],
+			"icon": "icons/icon.png",
+			"category": "Network;Chat"
+		}
+	}
+}
