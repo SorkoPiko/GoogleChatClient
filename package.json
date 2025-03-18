@@ -5,9 +5,12 @@
 	"main": "main.js",
 	"scripts": {
 		"start": "electron .",
-		"build:win": "electron-builder --win",
-		"build:mac": "electron-builder --mac",
-		"build:linux": "electron-builder --linux"
+		"build:win": "electron-builder --win --publish never",
+		"build:mac": "electron-builder --mac --publish never",
+		"build:linux": "electron-builder --linux --publish never",
+		"release:win": "electron-builder --win --publish always",
+		"release:mac": "electron-builder --mac --publish always",
+		"release:linux": "electron-builder --linux --publish always"
 	},
 	"dependencies": {
 		"electron-store": "^8.1.0",
@@ -28,7 +31,6 @@
 				"repo": "GoogleChatClient"
 			}
 		],
-		"publishAutoUpdate": false,
 		"mac": {
 			"category": "public.app-category.social-networking",
 			"target": "dmg",
