@@ -21,6 +21,14 @@
 	"build": {
 		"appId": "com.sorkopiko.googlechatclient",
 		"productName": "Google Chat",
+		"publish": [
+			{
+				"provider": "github",
+				"owner": "SorkoPiko",
+				"repo": "GoogleChatClient"
+			}
+		],
+		"publishAutoUpdate": false,
 		"mac": {
 			"category": "public.app-category.social-networking",
 			"target": "dmg",
