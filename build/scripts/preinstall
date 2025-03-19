@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Create user's Applications directory if it doesn't exist
-USER_APPLICATIONS="$HOME/Applications"
-mkdir -p "$USER_APPLICATIONS"
-
-exit 0
