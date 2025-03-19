@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>Google Chat</title>
+    <background file="background.png" scaling="proportional" alignment="bottomleft"/>
+    <welcome file="welcome.html"/>
+    <conclusion file="conclusion.html"/>
+    <license file="license.txt"/>
+    <pkg-ref id="com.sorkopiko.googlechatclient"/>
+    <options customize="never" require-scripts="false" rootVolumeOnly="true"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.sorkopiko.googlechatclient"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.sorkopiko.googlechatclient" visible="false">
+        <pkg-ref id="com.sorkopiko.googlechatclient"/>
+    </choice>
+    <pkg-ref id="com.sorkopiko.googlechatclient" version="1.0.0" onConclusion="none">GoogleChat.pkg</pkg-ref>
+</installer-gui-script>
