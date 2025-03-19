@@ -11,34 +11,30 @@ USER_HOME=$(dscl . -read /Users/"$CURRENT_USER" NFSHomeDirectory | sed 's/NFSHom
 
 echo "Detected user: $CURRENT_USER with home: $USER_HOME"
 
-# Define app paths
-TEMP_APP_PATH="/Applications/Google Chat.app"
-USER_APPLICATIONS="$USER_HOME/Applications"
-FINAL_APP_PATH="$USER_APPLICATIONS/Google Chat.app"
+# Define app paths - check both potential installation locations
+SYSTEM_APP_PATH="/Applications/Google Chat.app"
+USER_APP_PATH="$USER_HOME/Applications/Google Chat.app" 
 
-# Make sure the user's Applications folder exists
-echo "Creating user Applications directory if needed"
-mkdir -p "$USER_APPLICATIONS"
-chown "$CURRENT_USER" "$USER_APPLICATIONS"
-
-# If the app was installed to /Applications, move it to ~/Applications
-if [ -d "$TEMP_APP_PATH" ]; then
-    echo "Moving app to user's Applications folder..."
-    rsync -a "$TEMP_APP_PATH/" "$FINAL_APP_PATH/"
-    rm -rf "$TEMP_APP_PATH"
+# Now check where the app was actually installed
+if [ -d "$SYSTEM_APP_PATH" ]; then
+    APP_PATH="$SYSTEM_APP_PATH"
+    echo "App found at system Applications folder"
+elif [ -d "$USER_APP_PATH" ]; then
+    APP_PATH="$USER_APP_PATH"
+    echo "App found at user Applications folder"
 else
-    echo "Warning: App not found at $TEMP_APP_PATH"
+    echo "Error: App not found in either Applications location"
     exit 1
 fi
 
 # Remove quarantine attributes
 echo "Removing quarantine attributes..."
-xattr -rc "$FINAL_APP_PATH" || true
+xattr -rc "$APP_PATH" || true
 
 # Set proper ownership and permissions
 echo "Setting proper permissions..."
-chown -R "$CURRENT_USER" "$FINAL_APP_PATH"
-chmod -R 755 "$FINAL_APP_PATH"
+chown -R "$CURRENT_USER" "$APP_PATH"
+chmod -R 755 "$APP_PATH"
 
 echo "Postinstall completed successfully"
 exit 0

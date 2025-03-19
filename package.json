@@ -40,7 +40,15 @@
 			"icon": "icons/icon.png",
 			"artifactName": "${productName}-${version}-${arch}.${ext}",
 			"darkModeSupport": true,
-			"identity": null
+			"identity": null,
+			"pkgConfig": {
+				"scripts": "build/pkg-scripts/"
+			},
+			"pkg": {
+				"allowCurrentUserHome": true,
+				"allowRootDirectory": true,
+				"installLocation": "/Applications"
+			}
 		},
 		"win": {
 			"target": "nsis",
