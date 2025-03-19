@@ -13,6 +13,15 @@ let forceQuit = false;
 app.whenReady().then(() => {
   // Enable auto-start at system boot
   configureStartup(true);
+
+  // Request notification permissions immediately
+  if (Notification.isSupported()) {
+    Notification.requestPermission().then(permission => {
+      console.log('Notification permission:', permission);
+    }).catch(err => {
+      console.error('Error requesting notification permission:', err);
+    });
+  }
 });
 
 function createWindow() {
@@ -62,6 +71,93 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     // Inject notification observer script
     mainWindow.webContents.executeJavaScript(`
+      // Request notification permission immediately
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          console.log('Notification permission:', permission);
+        }).catch(err => {
+          console.error('Error requesting notification permission:', err);
+        });
+      }
+
+      // Insert our custom styles
+      const style = document.createElement('style');
+      style.textContent = \`
+        .notification-prompt {
+          position: fixed;
+          top: 16px;
+          right: 16px;
+          background: white;
+          border-radius: 8px;
+          padding: 16px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          z-index: 9999;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          max-width: 300px;
+          border: 1px solid #e0e0e0;
+        }
+        .notification-prompt.hidden {
+          display: none;
+        }
+        .notification-prompt button {
+          background: #1a73e8;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .notification-prompt button:hover {
+          background: #1557b0;
+        }
+      \`;
+      document.head.appendChild(style);
+
+      // Create and add notification prompt
+      const prompt = document.createElement('div');
+      prompt.className = 'notification-prompt';
+      prompt.innerHTML = \`
+        <div>
+          <strong>Enable notifications?</strong>
+          <p>Get notified when you receive new messages in Google Chat.</p>
+        </div>
+        <button id="enableNotifications">Enable Notifications</button>
+      \`;
+      document.body.appendChild(prompt);
+
+      // Handle notification permission
+      document.getElementById('enableNotifications').addEventListener('click', async () => {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            prompt.classList.add('hidden');
+          } else {
+            prompt.innerHTML = \`
+              <div>
+                <strong>Notifications blocked</strong>
+                <p>Please enable notifications in your system preferences to receive message alerts.</p>
+              </div>
+            \`;
+          }
+        } catch (error) {
+          console.error('Error requesting notification permission:', error);
+        }
+      });
+
+      // Check if we already have permission
+      if (Notification.permission === 'granted') {
+        prompt.classList.add('hidden');
+      } else if (Notification.permission === 'denied') {
+        prompt.innerHTML = \`
+          <div>
+            <strong>Notifications blocked</strong>
+            <p>Please enable notifications in your system preferences to receive message alerts.</p>
+          </div>
+        \`;
+      }
+
       const originalTitle = document.title;
       
       // Watch for title changes that might indicate new messages
@@ -95,7 +191,7 @@ function createTray() {
           app.dock.show();
         }
         mainWindow.show(); 
-            }
+      }
     },
     { type: 'separator' },
     { 
@@ -127,13 +223,23 @@ function createTray() {
 }
 
 function showNotification(title, body) {
+  // Check if notifications are supported and permitted
+  if (!Notification.isSupported()) {
+    console.log('Notifications not supported');
+    return;
+  }
+
   const notification = new Notification({
     title: title || 'Google Chat',
     body: body || 'You have a new message',
-    icon: path.join(__dirname, 'icons/icon.png')
+    icon: path.join(__dirname, 'icons/icon.png'),
+    silent: false
   });
   
   notification.on('click', () => {
+    if (process.platform === 'darwin') {
+      app.dock.show();
+    }
     mainWindow.show();
   });
   
