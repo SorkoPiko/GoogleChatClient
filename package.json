@@ -42,6 +42,7 @@
 			"darkModeSupport": true
 		},
 		"pkg": {
+			"allowAnywhere": false,
 			"allowRootDirectory": false,
 			"welcome": "build/welcome.html",
 			"conclusion": "build/conclusion.html"
