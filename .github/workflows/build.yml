@@ -25,12 +25,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
-          name: mac-build
+          name: mac-build-dmg
           path: dist/*.dmg
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         with:
-          name: mac-build
+          name: mac-build-pkg
           path: dist/*.pkg
+          if-no-files-found: warn
 
   build_on_windows:
     runs-on: windows-latest
