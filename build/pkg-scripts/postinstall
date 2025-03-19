@@ -1,2 +1,3 @@
 #!/bin/bash
 xattr -cr "$HOME/Applications/Google Chat.app"
+open "$HOME/Applications/Google Chat.app"

@@ -44,8 +44,7 @@
 		"pkg": {
 			"allowAnywhere": false,
 			"allowRootDirectory": false,
-			"welcome": "build/welcome.html",
-			"conclusion": "build/conclusion.html"
+			"welcome": "build/welcome.html"
 		},
 		"win": {
 			"target": "nsis",

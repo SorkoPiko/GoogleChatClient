@@ -101,24 +101,13 @@ function createTray() {
   
   tray.setToolTip('Google Chat');
   
-  // Always set the context menu - macOS will show it on right-click
+  // Set the context menu for all platforms
   tray.setContextMenu(contextMenu);
   
-  // For macOS specifically, override the left-click behavior
-  if (process.platform === 'darwin') {
-    // This prevents the default behavior (showing context menu on left click)
-    tray.on('click', (event, bounds) => {
-      // Toggle window visibility on left-click
-      if (mainWindow.isVisible()) {
-        mainWindow.hide();
-        app.dock.hide();
-      } else {
-        app.dock.show();
-        mainWindow.show();
-      }
-    });
-  } else {
-    // For Windows/Linux, just use the default click handler
+  // Only add click handler for non-macOS platforms
+  // This allows macOS to use the default behavior which shows context menu on click
+  if (process.platform !== 'darwin') {
+    // For Windows/Linux, toggle window on left-click
     tray.on('click', () => {
       if (mainWindow.isVisible()) {
         mainWindow.hide();
