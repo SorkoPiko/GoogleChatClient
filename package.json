@@ -39,16 +39,12 @@
 			],
 			"icon": "icons/icon.png",
 			"artifactName": "${productName}-${version}-${arch}.${ext}",
-			"darkModeSupport": true,
-			"identity": null,
-			"pkgConfig": {
-				"scripts": "build/pkg-scripts/"
-			},
-			"pkg": {
-				"allowCurrentUserHome": true,
-				"allowRootDirectory": true,
-				"installLocation": "/Applications"
-			}
+			"darkModeSupport": true
+		},
+		"pkg": {
+			"allowRootDirectory": false,
+			"welcome": "build/welcome.html",
+			"conclusion": "build/conclusion.html"
 		},
 		"win": {
 			"target": "nsis",
