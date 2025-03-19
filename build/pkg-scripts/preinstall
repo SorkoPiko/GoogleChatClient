@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Create user's Applications directory if it doesn't exist
-USER_APPLICATIONS="$HOME/Applications"
-mkdir -p "$USER_APPLICATIONS"
+# Make script exit if any command fails
+set -e
+
+echo "Running preinstall script..."
+
+# We can't modify user's home directory during pkg installation
+# as it runs as root, so we'll only prepare for the postinstall script
+echo "Preinstall completed successfully"
 
 exit 0

@@ -1,8 +1,15 @@
 #!/bin/bash
 
-# Get current user
-CURRENT_USER=$(stat -f "%Su" /dev/console)
-USER_HOME=$(dscl . -read /Users/$CURRENT_USER NFSHomeDirectory | sed 's/^NFSHomeDirectory: //')
+# Make script exit if any command fails
+set -e
+
+echo "Running postinstall script..."
+
+# Get current console user more reliably
+CURRENT_USER=$(/usr/bin/stat -f '%Su' /dev/console)
+USER_HOME=$(dscl . -read /Users/"$CURRENT_USER" NFSHomeDirectory | sed 's/NFSHomeDirectory: //')
+
+echo "Detected user: $CURRENT_USER with home: $USER_HOME"
 
 # Define app paths
 TEMP_APP_PATH="/Applications/Google Chat.app"
@@ -10,26 +17,28 @@ USER_APPLICATIONS="$USER_HOME/Applications"
 FINAL_APP_PATH="$USER_APPLICATIONS/Google Chat.app"
 
 # Make sure the user's Applications folder exists
+echo "Creating user Applications directory if needed"
 mkdir -p "$USER_APPLICATIONS"
+chown "$CURRENT_USER" "$USER_APPLICATIONS"
 
 # If the app was installed to /Applications, move it to ~/Applications
 if [ -d "$TEMP_APP_PATH" ]; then
     echo "Moving app to user's Applications folder..."
-    cp -R "$TEMP_APP_PATH" "$USER_APPLICATIONS/"
+    rsync -a "$TEMP_APP_PATH/" "$FINAL_APP_PATH/"
     rm -rf "$TEMP_APP_PATH"
+else
+    echo "Warning: App not found at $TEMP_APP_PATH"
+    exit 1
 fi
 
 # Remove quarantine attributes
 echo "Removing quarantine attributes..."
-/usr/bin/xattr -cr "$FINAL_APP_PATH"
+xattr -rc "$FINAL_APP_PATH" || true
 
 # Set proper ownership and permissions
 echo "Setting proper permissions..."
-chown -R $CURRENT_USER "$FINAL_APP_PATH"
+chown -R "$CURRENT_USER" "$FINAL_APP_PATH"
 chmod -R 755 "$FINAL_APP_PATH"
 
-# Launch the app
-echo "Launching Google Chat..."
-sudo -u $CURRENT_USER open "$FINAL_APP_PATH"
-
+echo "Postinstall completed successfully"
 exit 0

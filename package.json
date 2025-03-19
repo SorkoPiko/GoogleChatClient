@@ -36,7 +36,11 @@
 			"target": "pkg",
 			"icon": "icons/icon.png",
 			"artifactName": "${productName}-${version}-${arch}.${ext}",
-			"darkModeSupport": true
+			"darkModeSupport": true,
+			"pkgConfig": {
+				"scripts": "build/pkg-scripts/"
+			},
+			"identity": null
 		},
 		"win": {
 			"target": "nsis",
