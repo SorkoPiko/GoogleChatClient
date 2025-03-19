@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Remove quarantine attributes
-xattr -cr "$HOME/Applications/Google Chat.app"
-
-# Launch the app after installation
-open "$HOME/Applications/Google Chat.app" &

@@ -1,2 +1,2 @@
 *.sh text eol=lf filter=chmod-script
-build/pkg-scripts/* text eol=lf filter=chmod-script
+build/pkg-scripts/* text eol=lf executable=true filter=chmod-script
