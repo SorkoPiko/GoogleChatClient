@@ -40,9 +40,6 @@
 			"icon": "icons/icon.png",
 			"artifactName": "${productName}-${version}-${arch}.${ext}",
 			"darkModeSupport": true,
-			"pkgConfig": {
-				"scripts": "build/pkg-scripts/"
-			},
 			"identity": null
 		},
 		"win": {
