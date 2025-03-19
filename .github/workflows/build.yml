@@ -27,6 +27,10 @@ jobs:
         with:
           name: mac-build
           path: dist/*.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-build
+          path: dist/*.pkg
 
   build_on_windows:
     runs-on: windows-latest
