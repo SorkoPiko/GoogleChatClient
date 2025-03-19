@@ -1,2 +1,2 @@
 #!/bin/bash
-xattr -d com.apple.quarantine "$HOME/Applications/Google Chat.app"
+xattr -cr "$HOME/Applications/Google Chat.app"

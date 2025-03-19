@@ -6,7 +6,7 @@
     <conclusion file="conclusion.html"/>
     <license file="license.txt"/>
     <pkg-ref id="com.sorkopiko.googlechatclient"/>
-    <options customize="never" require-scripts="false" rootVolumeOnly="true"/>
+    <options customize="never" require-scripts="true" rootVolumeOnly="false"/>
     <choices-outline>
         <line choice="default">
             <line choice="com.sorkopiko.googlechatclient"/>
