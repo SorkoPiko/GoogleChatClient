@@ -93,8 +93,19 @@ function createTray() {
   ]);
   
   tray.setToolTip('Google Chat');
-  tray.setContextMenu(contextMenu);
   
+  if (process.platform === 'darwin') {
+    // On macOS, we need to explicitly set when to show the context menu
+    // This prevents the context menu from appearing on left-click
+    tray.on('right-click', () => {
+      tray.popUpContextMenu(contextMenu);
+    });
+  } else {
+    // On Windows/Linux, set the context menu normally
+    tray.setContextMenu(contextMenu);
+  }
+  
+  // Left-click behavior toggles window visibility
   tray.on('click', () => {
     if (mainWindow.isVisible()) {
       mainWindow.hide();
