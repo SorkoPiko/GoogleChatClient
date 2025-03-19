@@ -5,8 +5,8 @@
 	"main": "main.js",
 	"scripts": {
 		"start": "electron .",
-		"prebuild:mac": "node -e \"require('fs').chmodSync('build/scripts/postinstall', 0o755)\"",
-		"prerelease:mac": "node -e \"require('fs').chmodSync('build/scripts/postinstall', 0o755)\"",
+		"prebuild:mac": "node -e \"require('fs').chmodSync('build/pkg-scripts/postinstall', 0o755)\"",
+		"prerelease:mac": "node -e \"require('fs').chmodSync('build/pkg-scripts/postinstall', 0o755)\"",
 		"build:win": "electron-builder --win --publish never",
 		"build:mac": "electron-builder --mac --publish never",
 		"build:linux": "electron-builder --linux --publish never",
