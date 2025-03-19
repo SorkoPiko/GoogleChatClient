@@ -33,13 +33,10 @@
 		],
 		"mac": {
 			"category": "public.app-category.social-networking",
-			"target": [
-			  {
-				"target": "pkg",
-				"arch": ["x64", "arm64"]
-			  }
-			],
-			"icon": "icons/icon.png"
+			"target": "pkg",
+			"icon": "icons/icon.png",
+			"artifactName": "${productName}-${version}-${arch}.${ext}",
+			"darkModeSupport": true
 		},
 		"win": {
 			"target": "nsis",
