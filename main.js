@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, Notification, ipcMain, shell } = require('electron');
 const path = require('path');
+const { configureStartup } = require('./startup');
 
 app.setName('Google Chat');
 
@@ -7,6 +8,12 @@ app.setName('Google Chat');
 let mainWindow;
 let tray;
 let forceQuit = false;
+
+// Configure app to start at system boot
+app.whenReady().then(() => {
+  // Enable auto-start at system boot
+  configureStartup(true);
+});
 
 function createWindow() {
   // Hide from dock initially if on macOS
@@ -18,6 +25,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false, // Create window hidden initially
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -87,7 +95,7 @@ function createTray() {
           app.dock.show();
         }
         mainWindow.show(); 
-      } 
+            }
     },
     { type: 'separator' },
     { 
