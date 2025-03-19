@@ -36,8 +36,7 @@
 			"target": [
 			  {
 				"target": "pkg",
-				"arch": ["x64", "arm64"],
-				"scripts": "build/scripts"
+				"arch": ["x64", "arm64"]
 			  }
 			],
 			"icon": "icons/icon.png"
