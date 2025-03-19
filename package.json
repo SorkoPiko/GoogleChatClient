@@ -34,15 +34,13 @@
 		"mac": {
 			"category": "public.app-category.social-networking",
 			"target": [
-				{
-					"target": "pkg",
-					"arch": ["x64", "arm64"]
-				}
-			],
-			"icon": "icons/icon.png",
-			"pkg": {
+			  {
+				"target": "pkg",
+				"arch": ["x64", "arm64"],
 				"scripts": "build/scripts"
-			}
+			  }
+			],
+			"icon": "icons/icon.png"
 		},
 		"win": {
 			"target": "nsis",
