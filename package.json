@@ -36,13 +36,13 @@
 			"target": [
 				{
 					"target": "pkg",
-					"arch": ["x64", "arm64"]
+					"arch": ["x64", "arm64"],
+					"options": {
+						"scripts": "build/scripts"
+					}
 				}
 			],
-			"icon": "icons/icon.png",
-			"pkgConfig": {
-				"scripts": "build/scripts"
-			}
+			"icon": "icons/icon.png"
 		},
 		"win": {
 			"target": "nsis",
