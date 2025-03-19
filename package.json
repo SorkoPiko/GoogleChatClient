@@ -33,7 +33,10 @@
 		],
 		"mac": {
 			"category": "public.app-category.social-networking",
-			"target": "pkg",
+			"target": [
+				"pkg",
+				"dmg"
+			],
 			"icon": "icons/icon.png",
 			"artifactName": "${productName}-${version}-${arch}.${ext}",
 			"darkModeSupport": true,
