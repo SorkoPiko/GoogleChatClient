@@ -9,51 +9,46 @@ echo "Running postinstall script..."
 CURRENT_USER=$(/usr/bin/stat -f '%Su' /dev/console)
 USER_HOME=$(dscl . -read /Users/"$CURRENT_USER" NFSHomeDirectory | sed 's/NFSHomeDirectory: //')
 
-LOG_FILE="/tmp/google-chat-install.log"
-echo "Starting installation $(date)" > "$LOG_FILE"
+# Create a log file in user's home directory where we have write permissions
+LOG_FILE="$USER_HOME/Library/Logs/google-chat-install.log"
+mkdir -p "$USER_HOME/Library/Logs"
+touch "$LOG_FILE" 2>/dev/null || LOG_FILE="/tmp/google-chat-install-${RANDOM}.log"
 
+echo "Starting installation $(date)" > "$LOG_FILE"
 echo "Detected user: $CURRENT_USER with home: $USER_HOME" | tee -a "$LOG_FILE"
 
-# List common directories to help diagnose
+# Check where the app might be installed
 echo "Checking installation directories:" | tee -a "$LOG_FILE"
-ls -la /Applications/ >> "$LOG_FILE" 2>&1
-echo "User Applications:" | tee -a "$LOG_FILE"
-mkdir -p "$USER_HOME/Applications"
-ls -la "$USER_HOME/Applications/" >> "$LOG_FILE" 2>&1
 
-# Define app paths - check both potential installation locations
-SYSTEM_APP_PATH="/Applications/Google Chat.app"
-USER_APP_PATH="$USER_HOME/Applications/Google Chat.app" 
+# User's Applications folder should be accessible without admin rights
+USER_APP_PATH="$USER_HOME/Applications/Google Chat.app"
 
-# Now check where the app was actually installed
-if [ -d "$SYSTEM_APP_PATH" ]; then
-    APP_PATH="$SYSTEM_APP_PATH"
-    echo "App found at system Applications folder" | tee -a "$LOG_FILE"
-elif [ -d "$USER_APP_PATH" ]; then
-    APP_PATH="$USER_APP_PATH"
+# Debug the path
+echo "Looking for app at: $USER_APP_PATH" | tee -a "$LOG_FILE"
+if [ -d "$USER_APP_PATH" ]; then
     echo "App found at user Applications folder" | tee -a "$LOG_FILE"
+    ls -la "$USER_APP_PATH" >> "$LOG_FILE" 2>&1
+    
+    # Try to remove quarantine attributes (should work without admin)
+    echo "Removing quarantine attributes..." | tee -a "$LOG_FILE"
+    xattr -d com.apple.quarantine "$USER_APP_PATH" >> "$LOG_FILE" 2>&1 || echo "Failed to remove quarantine attribute, may not be needed" | tee -a "$LOG_FILE"
+    
+    # Verify the app is executable by the user
+    echo "Checking execute permissions..." | tee -a "$LOG_FILE"
+    if [ -x "$USER_APP_PATH/Contents/MacOS/Google Chat" ]; then
+        echo "App is executable" | tee -a "$LOG_FILE"
+    else
+        echo "Warning: App may not be executable" | tee -a "$LOG_FILE"
+    fi
 else
-    echo "Warning: App not found in expected locations" | tee -a "$LOG_FILE"
-    # Don't exit with error - continue so the installer completes
+    echo "Warning: App not found at $USER_APP_PATH" | tee -a "$LOG_FILE"
+    # Check if it's in system Applications by any chance
+    if [ -d "/Applications/Google Chat.app" ]; then
+        echo "App found in system Applications folder, but we don't have admin rights to modify it" | tee -a "$LOG_FILE"
+    fi
 fi
 
-# Whether or not we found the app, try to perform cleanup operations
-for POSSIBLE_APP in "$SYSTEM_APP_PATH" "$USER_APP_PATH"; do
-    if [ -d "$POSSIBLE_APP" ]; then
-        echo "Found app at $POSSIBLE_APP - attempting cleanup" | tee -a "$LOG_FILE"
-        
-        # Try to remove quarantine attributes
-        echo "Removing quarantine attributes..." | tee -a "$LOG_FILE"
-        xattr -cr "$POSSIBLE_APP" >> "$LOG_FILE" 2>&1
-        
-        # Try to set proper ownership and permissions
-        echo "Setting proper permissions..." | tee -a "$LOG_FILE"
-        chown -R "$CURRENT_USER" "$POSSIBLE_APP" >> "$LOG_FILE" 2>&1
-        chmod -R 755 "$POSSIBLE_APP" >> "$LOG_FILE" 2>&1
-    fi
-done
-
-echo "Postinstall completed successfully" | tee -a "$LOG_FILE"
+echo "Postinstall completed" | tee -a "$LOG_FILE"
 echo "See $LOG_FILE for installation details" | tee -a "$LOG_FILE"
 
 # Always exit successfully so the installer completes
