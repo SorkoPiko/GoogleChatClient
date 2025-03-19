@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, Notification, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, Notification, ipcMain, shell } = require('electron');
 const path = require('path');
 
 app.setName('Google Chat');
@@ -28,6 +28,13 @@ function createWindow() {
 
   // Load Google Chat
   mainWindow.loadURL('https://chat.google.com');
+
+  // Handle external links
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // Open all links in default browser
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 
   // Handle window close events - just hide the window, don't close the app
   mainWindow.on('close', (event) => {
