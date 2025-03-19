@@ -17,4 +17,7 @@
         <pkg-ref id="com.sorkopiko.googlechatclient"/>
     </choice>
     <pkg-ref id="com.sorkopiko.googlechatclient" version="1.0.0" onConclusion="none">GoogleChat.pkg</pkg-ref>
+    <action id="com.sorkopiko.googlechatclient" onConclusion="success">
+        <command>/bin/sh -c '/usr/bin/open "$HOME/Applications/Google Chat.app"'</command>
+    </action>
 </installer-gui-script>
